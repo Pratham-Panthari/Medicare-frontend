@@ -1,0 +1,15 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+*{
+    margin: 0px;
+    padding: 0px;
+}
+
+.background {
+    background-image: url(assets/images/hero-bg.png);
+    background-repeat: no-repeat;
+    background-size: cover;
+    opacity: 100%;
+}
