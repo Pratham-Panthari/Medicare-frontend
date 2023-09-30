@@ -133,7 +133,7 @@ const Profile = () => {
                           {
                               appointments?.map(appointment => 
                                 
-                                  appointment.paitent._id === auth?.id ? 
+                                  appointment?.paitent?._id === auth?.id ? 
                                   (
                                     <>
                                       
