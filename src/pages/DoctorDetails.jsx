@@ -14,6 +14,7 @@ const DoctorDetails = () => {
     const [open, setOpen] = useState(false)
     const [openBookings, setOpenBookings] = useState(false)
     const [timeSlots, setTimeSlots] = useState()
+    const [showError, setShowError] = useState(false)
     
     const navigate = useNavigate()
 
@@ -83,7 +84,12 @@ const DoctorDetails = () => {
                                         </select>
                                     </div>
                                 </div>
-                                <button className='px-4 py-2 text-white font-semibold text-md bg-blue-700 hover:bg-blue-800 rounded-xl' onClick={() => { bookAppointment() }} >Book Now</button>
+                                {
+                                    showError && (
+                                        <><h1 className='text-lg font-bold text-red-500 text-center py-2 '>Please login to book</h1></>
+                                    )
+                                }
+                                <button className='px-4 py-2 text-white font-semibold text-md bg-blue-700 hover:bg-blue-800 rounded-xl' onClick={() => { auth?.token && timeSlots ? (bookAppointment()) : (setShowError(true)) }} >Book Now</button>
                             </div>
                         </div>
                     </div>
