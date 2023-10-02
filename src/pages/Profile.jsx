@@ -18,6 +18,7 @@ const Profile = () => {
   const [appointments, setAppointments] = useState([])
 
   const [loader, setLoader] = useState(false)
+  const [openDelete, setOpenDelete] = useState({})
   
 
   const getUser = async () => {
@@ -56,8 +57,9 @@ const Profile = () => {
   useEffect(() => {
     if (auth.id) {
       getUser();
+      getAllAppointments()
     }
-    getAllAppointments()
+    
   }, [auth?.id])
 
   const handleUpdate = async(e) => {
@@ -84,12 +86,32 @@ const Profile = () => {
     }
   }
 
+  const confirmDelete = (id) => {
+    setOpenDelete({...openDelete, [id]: true})
+  }
+
+  const closeConfirmDelete = (id) => {
+    setOpenDelete({...openDelete, [id]: false})
+  }
+  const handleDelete = async (id) => {
+    
+    try {
+      const res = await axios.delete(`https://medicare-backend.onrender.com/api/v1/appointment/delete-appointment/${id}`)
+      if(res.data.status){
+        getAllAppointments()
+      }
+    } catch (error) {
+      
+    }
+  }
+ 
+
   return (
     <>
       <Layout>
         <section className='w-[70%] mx-auto py-24'>
-          <div className='w-full flex gap-6'> 
-            <div className='w-[30%] border-2 border-stone-200'>
+          <div className='w-full lg:flex gap-6'> 
+            <div className='lg:w-[30%] w-full mb-6 border-2 border-stone-200'>
               <div className='px-3 py-4'>
                 <h1 className='py-1 text-center text-black font-bold text-lg'>{auth?.name}</h1>
                 <h1 className='py-1 text-center text-stone-500 font-normal text-lg'>{auth?.email}</h1>
@@ -101,8 +123,8 @@ const Profile = () => {
                 </div>
               </div>
             </div>
-            <div className='w-[70%]'>
-              <div className='flex gap-10'>
+            <div className='lg:w-[70%] w-full'>
+              <div className='flex lg:gap-10 gap-6'>
                 <button className='px-4 py-2 text-white font-semibold text-lg rounded-xl bg-blue-700 hover:bg-blue-800' onClick={() => { setMybookings(true); setSettings(false) }}>
                   My Booking
                 </button>
@@ -129,25 +151,58 @@ const Profile = () => {
                         </>) :
                         (<>
                         <h1 className='px-3 py-2 text-black text-2xl font-bold'>My Bookings</h1>
+
                           <div className='w-full px-4 py-2 lg:grid lg:grid-cols-2 lg:gap-4'>
                           {
                               appointments?.map(appointment => 
                                 
-                                  appointment?.paitent?._id === auth?.id ? 
+                                appointment?.paitent?._id === auth?.id ? 
+                               
                                   (
+                                    
                                     <>
-                                      
-                                        <div className='col shadow-lg shadow-gray-500/50'>
-                                          <div className='px-3 py-3 border-2 border-black'>
-                                            <h1 className='text-xl font-semibold text-black text-center py-3'>Appointment Details</h1>
-                                            <div className='px-3 py-3'>
-                                              <h1 className='text-lg font-bold text-black px-3 py-2'>Doctor Name: <br/> {appointment.doctors.name}</h1>
-                                              <h1 className='text-lg font-bold text-black px-3 py-2'>Appoitment Time: <br/> {appointment.time}</h1>
-                                            </div>
+                                      <div className='col shadow-lg shadow-gray-500/50 mb-6 h-fit'>
+                                        <div className='px-3 py-3 border-2 border-black'>
+                                          <div className='w-full justify-between flex px-3 py-2'>
+                                            <h1 className='text-xl font-semibold text-blackpy-3'>Appointment Details</h1>
+                                            <button onClick={() => { confirmDelete(appointment?._id) }}>
+                                              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="red" className="bi bi-trash3-fill" viewBox="0 0 16 16">
+                                                <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5Zm-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5ZM4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06Zm6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528ZM8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5Z"/>
+                                              </svg>
+                                            </button>
+                                                
                                           </div>
+                                          <hr/>
+                                                
+                                          <div className='px-3 py-3'>
+                                            <h1 className='text-lg font-bold text-black px-3 py-2'>Doctor Name: <br/> {appointment.doctors.name}</h1>
+                                            <h1 className='text-lg font-bold text-black px-3 py-2'>Appoitment Time: <br/> {appointment.time}</h1>
+                                          </div>
+                                          {
+                                              openDelete[appointment?._id] ?
+                                                (
+                                                  <div className='px-4 py-2'>
+                                                      <h1 className='px-3 mt-2 text-black text-lg font-semibold hover:underline cursor-pointer' onClick={() => { closeConfirmDelete(appointment?._id) }} >
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="black" className="bi bi-x-lg" viewBox="0 0 16 16">
+                                                          <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
+                                                        </svg>
+                                                      </h1>
+                                                      <div className='px-3 py-4'>
+                                                        <p className='text-sm text-stone-500 font-normal'>Do you want to delete this appointment?</p>
+                                                      </div>
+                                                      <button className='px-4 py-2 text-white font-semibold text-md bg-red-500 hover:bg-red-400 rounded-xl' onClick={() => {handleDelete(appointment?._id); closeConfirmDelete(appointment?._id)}} >Delete</button>
+                                                  </div>
+                                                      
+                                                ) : 
+                                                (
+                                                  <>
+                                                  </>
+                                                )
+                                            }
                                         </div>
-                                      
+                                      </div>
                                     </>
+                                        
                                   ) :
                                   (
                                     <>
